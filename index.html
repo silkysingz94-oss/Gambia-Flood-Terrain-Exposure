@@ -3,1274 +3,971 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GBoS GEOAI | Gambia Flood Terrain Exposure Intelligence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GBoS GEOAI | Gambia Rainfall and Surface Flow</title>
 
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
 <style>
 :root{
- --navy:#081e2d;
- --panel:#0d293b;
- --panel2:#14364a;
- --line:#294c60;
- --teal:#55d3c2;
- --text:#edf6f8;
- --muted:#9db5c0;
- --blue:#168fd0;
- --red:#e95449;
+  --navy:#10243a;--blue:#168bd2;--cyan:#20b9df;
+  --green:#08a58b;--orange:#ee9a35;--bg:#edf2f7;
+  --border:#dce5ed;--muted:#718096;
 }
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;
- font-family:Arial,sans-serif;background:var(--navy);color:var(--text)}
-.app{height:100vh;display:grid;grid-template-columns:350px 1fr}
-.sidebar{background:var(--navy);display:flex;flex-direction:column;
- border-right:1px solid var(--line);min-height:0;z-index:5}
-.brand{padding:15px 18px;border-bottom:1px solid var(--line);
- display:flex;align-items:center;gap:11px}
-.logo{width:38px;height:38px;border:1px solid #4b8991;border-radius:10px;
- display:grid;place-items:center;color:var(--teal);font-size:23px}
-.brand strong{font-size:16px}
-.brand small{margin-left:auto;font-size:8px;letter-spacing:1px;color:#8bbbc4}
-.scroll{padding:16px 18px;overflow-y:auto;min-height:0}
-.kicker{font-size:9px;letter-spacing:1.8px;color:var(--teal);
- font-weight:bold;margin-bottom:11px}
-h1{font-size:25px;line-height:1.15;margin:0 0 10px}
-.intro{font-size:10px;line-height:1.6;color:var(--muted)}
-.note{background:var(--panel2);border:1px solid var(--line);
- border-radius:9px;padding:11px;font-size:9px;line-height:1.6;color:#c0d1d8}
-.section{display:flex;justify-content:space-between;align-items:center;
- margin:19px 0 10px;font-size:9px;font-weight:bold;letter-spacing:1px}
-.section span:last-child{color:var(--teal);font-size:8px}
-.field{margin-bottom:10px}
-.field label{display:block;color:var(--muted);font-size:9px;margin-bottom:5px}
-select{width:100%;background:var(--panel2);border:1px solid #34566a;
- color:white;border-radius:7px;padding:10px;font-size:10px}
-select:disabled{opacity:.5}
-.row{display:flex;gap:7px}
-.btn{padding:9px 10px;border:1px solid #35576a;border-radius:7px;
- background:var(--panel2);color:white;font-size:9px;font-weight:bold;cursor:pointer}
-.btn.primary{background:var(--teal);color:#06232b;border-color:var(--teal);flex:1}
-.btn:hover{filter:brightness(1.12)}
-.big{font-size:29px;font-weight:bold}
-.big small{font-size:12px;color:var(--muted)}
-.tag{font-size:8px;color:var(--teal);font-weight:bold}
-.value-row{display:flex;align-items:end;justify-content:space-between;margin:9px 0 2px}
-input[type=range]{width:100%;accent-color:var(--teal)}
-.range-label{display:flex;justify-content:space-between;color:var(--muted);font-size:8px}
-.speed{padding:6px 8px;font-size:8px;border-radius:20px}
-.speed.active{background:var(--teal);color:#06232b}
-.kpis{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.kpi{background:var(--panel);border:1px solid var(--line);padding:10px;border-radius:8px}
-.kpi span{font-size:8px;color:var(--muted);display:block;line-height:1.4}
-.kpi strong{font-size:17px;display:block;margin-top:5px}
-.checks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.checks label{font-size:9px;color:#c9d9df;display:flex;gap:6px;align-items:center}
-input[type=checkbox]{accent-color:var(--teal)}
-.legend{display:flex;gap:10px;flex-wrap:wrap}
-.legend span{font-size:8px;color:var(--muted);display:flex;gap:5px;align-items:center}
-.swatch{width:9px;height:9px;border-radius:2px}
-.footer{padding:10px 18px;border-top:1px solid var(--line);
- font-size:8px;line-height:1.7;color:#8caab6}
-.footer strong{color:#dcebed}
-.map-area{position:relative;min-width:0;background:#b8d3d7}
+html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;color:#26394b;background:var(--bg)}
+header{height:64px;background:var(--navy);color:white;padding:0 18px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:16px;font-weight:800}
+.brand small{display:block;font-size:10px;color:#b9d5e8;margin-top:4px;font-weight:400}
+.header-right{text-align:right;font-size:10px;color:#d4e7f4}
+main{height:calc(100% - 64px);display:grid;grid-template-columns:310px minmax(280px,1fr) 310px;gap:9px;padding:9px;min-height:0}
+.panel{background:white;border:1px solid var(--border);border-radius:9px;padding:13px;overflow-y:auto;min-height:0}
+.panel h2{font-size:14px;color:var(--navy);margin:0 0 13px}
+.section{padding-bottom:13px;margin-bottom:13px;border-bottom:1px solid var(--border)}
+.section:last-child{border:0}
+.heading{font-size:10px;letter-spacing:.7px;font-weight:800;color:#60788b;margin-bottom:9px;text-transform:uppercase}
+label{display:block;font-size:11px;font-weight:700;color:#506477;margin:9px 0 5px}
+select,input[type=range]{width:100%;height:34px;border:1px solid var(--border);border-radius:5px;padding:5px 8px;background:white;color:#26394b;font-size:11px}
+input[type=range]{padding:0;accent-color:var(--blue)}
+button{border:0;border-radius:5px;padding:9px 10px;font-weight:700;font-size:10px;cursor:pointer}
+.primary{background:var(--blue);color:white}
+.secondary{background:#eaf1f7;color:var(--navy)}
+.danger{background:#fff0ef;color:#b63d3d}
+.btnrow{display:flex;gap:7px;margin-top:9px}
+.btnrow button{flex:1}
+.check{display:flex;align-items:center;gap:8px;font-size:11px;margin:9px 0}
+.check input{accent-color:var(--blue)}
+.note{font-size:10px;line-height:1.5;background:#f1f7fb;border-left:3px solid var(--blue);padding:9px;border-radius:4px;color:#51677a}
+.map-wrap{position:relative;min-height:0;min-width:0;border-radius:9px;overflow:hidden;border:1px solid var(--border)}
 #map{position:absolute;inset:0}
-.status{position:absolute;top:14px;left:14px;background:#09283ce8;
- padding:10px 13px;border-radius:8px;font-size:9px;z-index:3;max-width:65%}
-.map-tools{position:absolute;right:15px;top:15px;width:270px;
- background:#f5f8f7;color:#193d4b;border-radius:10px;padding:9px;z-index:3;
- box-shadow:0 5px 20px #0002}
-.tabs{display:flex;background:#e6eeee;padding:4px;border-radius:7px;gap:4px}
-.tabs button{flex:1;border:0;background:transparent;padding:8px;
- font-size:9px;font-weight:bold;color:#607b85;border-radius:5px;cursor:pointer}
-.tabs button.active{background:#103849;color:white}
-.tool-row{display:flex;align-items:center;gap:8px;margin-top:9px;font-size:8px}
-.tool-row input{width:90px;accent-color:#168f8d}
-.caption{position:absolute;bottom:14px;left:14px;background:#f6faf8;
- color:#294956;padding:11px;border-radius:8px;font-size:9px;z-index:3;max-width:65%}
-.summary{position:absolute;right:15px;bottom:15px;background:#f6faf8;
- color:#193d4b;padding:13px;border-radius:10px;z-index:3;min-width:190px;max-width:270px}
-.summary strong{font-size:11px}
-.summary small{display:block;color:#718d96;font-size:8px;margin-top:6px;line-height:1.5}
-.rain{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0;
- background:repeating-linear-gradient(105deg,transparent 0 25px,#d9f8ff77 26px,
- #d9f8ff77 27px,transparent 28px 48px)}
-.rain.on{opacity:.3;animation:rain .4s linear infinite}
-@keyframes rain{to{background-position:-20px 40px}}
-@media(max-width:760px){.app{grid-template-columns:305px 1fr}.map-tools{width:220px}}
-@media(max-width:580px){
- html,body{overflow:auto}
- .app{height:auto;min-height:100vh;display:flex;flex-direction:column}
- .sidebar{height:650px}
- .map-area{height:620px}
- .footer{display:none}
- .map-tools{width:210px;right:7px;top:7px}
+#animationCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+.map-title{position:absolute;z-index:5;top:12px;left:12px;background:white;border-radius:6px;padding:10px 12px;box-shadow:0 2px 8px #0002;font-size:11px}
+.map-title strong{display:block;color:var(--navy);margin-bottom:4px}
+.legend{position:absolute;z-index:5;bottom:12px;left:12px;background:white;padding:9px 11px;border-radius:6px;font-size:10px;box-shadow:0 2px 8px #0002}
+.legend div{margin:5px 0}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.kpi{padding:10px;background:#f3f7fa;border:1px solid #e5edf3;border-radius:6px}
+.kpi span{display:block;font-size:9px;color:var(--muted);margin-bottom:5px}
+.kpi strong{font-size:18px;color:var(--navy);overflow-wrap:anywhere}
+.kpi small{display:block;font-size:9px;color:var(--muted);margin-top:3px}
+.stat{display:flex;justify-content:space-between;gap:8px;font-size:10px;margin:10px 0}
+.stat strong{text-align:right;color:var(--navy)}
+.track{height:8px;background:#e7edf2;border-radius:9px;overflow:hidden}
+.fill{height:100%;background:var(--blue);width:0}
+#chart{width:100%;height:130px;display:block}
+#status{font-size:10px;line-height:1.5;color:#526b7f;overflow-wrap:anywhere}
+footer{font-size:9px;line-height:1.6;color:#7b8b9b;margin-top:13px}
+@media(max-width:1050px){
+ main{grid-template-columns:280px minmax(250px,1fr);grid-template-rows:minmax(350px,1fr) 260px}
+ .right{grid-column:1/3;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+ .right h2{grid-column:1/4}
+}
+@media(max-width:700px){
+ header{height:58px;padding:0 10px}
+ main{height:calc(100% - 58px);display:flex;flex-direction:column;overflow:auto}
+ .panel{overflow:visible}
+ .map-wrap{height:470px;flex:none}
+ .right{display:block}
 }
 </style>
 </head>
 
 <body>
-<div class="app">
-
-<aside class="sidebar">
- <div class="brand">
-  <div class="logo">◈</div>
-  <strong>GBoS GEOAI</strong>
-  <small>FLOOD / TERRAIN</small>
- </div>
-
- <div class="scroll">
-
-  <div class="kicker">THE GAMBIA • FLOOD EXPOSURE INTELLIGENCE</div>
-  <h1>Terrain, water<br>& exposed places.</h1>
-  <p class="intro">
-   Administrative-area-based terrain screening, hypothetical water-level
-   scenarios and spatial analysis for The Gambia.
-  </p>
-
-  <div class="note">
-   <strong>Methodology:</strong> Terrain elevation threshold screening
-   within selected GBoS enumeration-area boundaries. This is not a
-   hydraulic flood model or a rainfall forecast.
+<header>
+  <div class="brand">
+    GBoS GEOAI | RAINFALL & SURFACE FLOW
+    <small>Gambia Terrain Exposure • Interactive Scenario Simulation</small>
   </div>
+  <div class="header-right">GIS / CARTOGRAPHY UNIT<br>GAMBIA BUREAU OF STATISTICS</div>
+</header>
 
-  <div class="section">
-   <span>01 / ADMINISTRATIVE SELECTION</span>
-   <span id="areaLabel">THE GAMBIA</span>
-  </div>
+<main>
+<!-- CONTROLS -->
+<aside class="panel">
+<h2>Simulation controls</h2>
 
-  <div class="field">
-   <label>Region / Local Government Area</label>
-   <select id="region" disabled>
-    <option value="">Loading boundaries...</option>
-   </select>
-  </div>
-
-  <div class="field">
-   <label>District</label>
-   <select id="district" disabled><option value="">All districts</option></select>
-  </div>
-
-  <div class="field">
-   <label>Ward</label>
-   <select id="ward" disabled><option value="">All wards</option></select>
-  </div>
-
-  <div class="field">
-   <label>Enumeration Area</label>
-   <select id="ea" disabled><option value="">All enumeration areas</option></select>
-  </div>
-
-  <div class="row">
-   <button class="btn" id="national">↺ National extent</button>
-   <button class="btn" id="zoomArea">⌖ Zoom to area</button>
-  </div>
-
-  <div class="section">
-   <span>02 / FLOOD SCENARIO</span>
-   <span>HYPOTHETICAL</span>
-  </div>
-
-  <div class="value-row">
-   <div class="big" id="stageText">1.60 <small>m</small></div>
-   <div class="tag">WATER LEVEL</div>
-  </div>
-
-  <input id="stage" type="range" min="0" max="5" step="0.05" value="1.6">
-  <div class="range-label"><span>0 m</span><span>5 m</span></div>
-
-  <div class="row" style="margin-top:12px">
-   <button class="btn primary" id="play">Ⅱ PAUSE</button>
-   <button class="btn" id="reset">↻ RESET</button>
-  </div>
-
-  <div class="row" style="margin-top:8px;align-items:center">
-   <span style="font-size:8px;color:#9db5c0;margin-right:auto">SPEED</span>
-   <button class="btn speed active" data-speed="1">1×</button>
-   <button class="btn speed" data-speed="1.5">1.5×</button>
-   <button class="btn speed" data-speed="2">2×</button>
-   <button class="btn speed" data-speed="3">3×</button>
-  </div>
-
-  <div class="section">
-   <span>03 / SCENARIO COMPARISON</span>
-   <span>METRES</span>
-  </div>
-
-  <div class="row">
-   <button class="btn scenario" data-level=".5">LOW<br>0.5</button>
-   <button class="btn scenario" data-level="1">MODERATE<br>1.0</button>
-   <button class="btn scenario" data-level="1.6">HIGH<br>1.6</button>
-   <button class="btn scenario" data-level="2.5">EXTREME<br>2.5</button>
-  </div>
-
-  <div class="section">
-   <span>04 / SELECTED-AREA ANALYTICS</span>
-   <span id="scenarioLabel">1.60 m</span>
-  </div>
-
-  <div class="kpis">
-   <div class="kpi"><span>Selected EA polygons</span><strong id="eaCount">—</strong></div>
-   <div class="kpi"><span>Terrain samples</span><strong id="sampleCount">—</strong></div>
-   <div class="kpi"><span>Mean elevation</span><strong id="meanElevation">—</strong></div>
-   <div class="kpi"><span>Samples at/below threshold</span><strong id="belowCount">—</strong></div>
-   <div class="kpi"><span>Estimated sample area</span><strong id="lowArea">—</strong></div>
-   <div class="kpi"><span>Scenario threshold</span><strong id="thresholdKPI">1.60 m</strong></div>
-  </div>
-
-  <div class="section"><span>05 / MAP LAYERS</span><span>DISPLAY</span></div>
-
-  <div class="checks">
-   <label><input type="checkbox" id="showEA" checked> EA boundaries</label>
-   <label><input type="checkbox" id="showScenario" checked> Scenario points</label>
-   <label><input type="checkbox" id="showRain"> Rain effect</label>
-   <label><input type="checkbox" id="showTerrain" checked> 3D terrain</label>
-  </div>
-
-  <div class="field" style="margin-top:12px">
-   <label>Terrain exaggeration</label>
-   <select id="exaggeration">
-    <option value="1">1.0 ×</option>
-    <option value="1.5" selected>1.5 ×</option>
-    <option value="2">2.0 ×</option>
-    <option value="3">3.0 ×</option>
-   </select>
-  </div>
-
-  <div class="field">
-   <label>Scenario point opacity</label>
-   <input type="range" id="opacity" min="10" max="100" value="75">
-  </div>
-
-  <div class="section"><span>06 / LEGEND</span><span>SCREENING</span></div>
-  <div class="legend">
-   <span><i class="swatch" style="background:#168fd0"></i>At/below threshold</span>
-   <span><i class="swatch" style="background:#e95449"></i>Above threshold</span>
-   <span><i class="swatch" style="background:#55d3c2"></i>Selected EA</span>
-  </div>
-
-  <p class="intro">
-   Low-elevation sample area is an approximate grid-cell estimate.
-   It is not a measured inundation footprint. No verified flood depth
-   or population exposure is inferred.
-  </p>
-
-  <div class="row">
-   <button class="btn" id="exportGeo">↓ EXPORT GEOJSON</button>
-   <button class="btn" id="exportCSV">↓ EXPORT CSV</button>
-  </div>
-
- </div>
-
- <div class="footer">
-  <strong>Produced by Ansu Singhateh</strong><br>
-  GIS Analyst | GIS / Cartography Unit | Gambia Bureau of Statistics<br>
-  GBoS GEOAI • Research and educational use
- </div>
-</aside>
-
-<main class="map-area">
- <div id="map"></div>
- <div class="rain" id="rain"></div>
-
- <div class="status" id="status">Initialising Gambia map...</div>
-
- <div class="map-tools">
-  <div class="tabs">
-   <button id="view2d">2D MAP</button>
-   <button id="view3d" class="active">3D VIEW</button>
-   <button id="fit">＋ FIT</button>
-  </div>
-  <div class="tool-row">
-   <span>CAMERA</span>
-   <div class="tabs">
-    <button id="orbit" class="active">ORBIT</button>
-    <button id="pan">PAN</button>
-   </div>
-  </div>
-  <div class="tool-row">
-   <button class="btn" id="rainButton">RAIN OFF</button>
-   <span>ZOOM</span>
-   <input id="zoomLevel" type="range" min="6" max="15" value="8">
-  </div>
- </div>
-
- <div class="caption">
-  <strong>3D terrain:</strong> Drag to rotate • Right drag to pan •
-  Scroll to zoom. Click the map to inspect elevation.
- </div>
-
- <div class="summary">
-  <strong id="summaryTitle">The Gambia</strong>
-  <small id="summaryDescription">Loading GBoS boundaries...</small>
- </div>
-</main>
+<div class="section">
+<div class="heading">Administrative selection</div>
+<label>Region / LGA</label>
+<select id="region"><option value="">All Gambia</option></select>
+<label>District</label>
+<select id="district"><option value="">All districts</option></select>
+<label>Ward</label>
+<select id="ward"><option value="">All wards</option></select>
+<label>Enumeration area</label>
+<select id="ea"><option value="">All EAs</option></select>
+<div class="btnrow">
+<button class="primary" id="apply">Apply area</button>
+<button class="secondary" id="resetArea">National view</button>
+</div>
 </div>
 
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+<div class="section">
+<div class="heading">Rainfall scenario</div>
+<label>Rainfall intensity: <strong id="rainLabel">50 mm/hr</strong></label>
+<input id="intensity" type="range" min="0" max="150" step="5" value="50">
+<label>Duration</label>
+<select id="duration">
+<option value="1">1 hour</option>
+<option value="3" selected>3 hours</option>
+<option value="6">6 hours</option>
+<option value="12">12 hours</option>
+<option value="24">24 hours</option>
+</select>
+<label>Scenario preset</label>
+<select id="preset">
+<option value="custom">Custom</option>
+<option value="20">Light rainfall</option>
+<option value="50" selected>Moderate rainfall</option>
+<option value="90">Heavy rainfall</option>
+<option value="150">Extreme rainfall</option>
+</select>
+<div class="stat"><span>Scenario rainfall total</span><strong id="totalLabel">150 mm</strong></div>
+<div class="note">Scenario rainfall is a user-defined input, not observed rainfall or a forecast.</div>
+</div>
+
+<div class="section">
+<div class="heading">Animation layers</div>
+<label class="check"><input type="checkbox" id="rainToggle" checked> Animated rainfall droplets</label>
+<label class="check"><input type="checkbox" id="flowToggle" checked> Surface-flow particles</label>
+<label class="check"><input type="checkbox" id="boundaryToggle" checked> Selected EA boundaries</label>
+<label class="check"><input type="checkbox" id="terrainToggle" checked> 3D terrain</label>
+<label>Flow animation speed</label>
+<input id="speed" type="range" min="1" max="10" value="5">
+<div class="stat"><span>Animation speed</span><strong id="speedLabel">5 / 10</strong></div>
+</div>
+
+<div class="section">
+<div class="heading">Map display</div>
+<label>Basemap</label>
+<select id="basemap">
+<option value="street">Street map</option>
+<option value="satellite">Satellite imagery</option>
+</select>
+<div class="btnrow">
+<button class="primary" id="run">Run simulation</button>
+<button class="danger" id="stop">Stop</button>
+</div>
+<div class="btnrow">
+<button class="secondary" id="reset">Reset simulation</button>
+<button class="secondary" id="export">Export CSV</button>
+</div>
+</div>
+
+<div class="section">
+<div class="heading">Boundary and data status</div>
+<div id="status">Loading Gambia EA boundary…</div>
+</div>
+</aside>
+
+<!-- MAP -->
+<section class="map-wrap">
+<div id="map"></div>
+<canvas id="animationCanvas"></canvas>
+<div class="map-title">
+<strong id="areaTitle">THE GAMBIA — NATIONAL VIEW</strong>
+<span id="areaSubtitle">Rainfall and surface-flow scenario</span>
+</div>
+<div class="legend">
+<div>💧 Animated rainfall droplets</div>
+<div><span style="color:#00a995">━━━</span> Surface-flow particles</div>
+<div><span style="color:#168bd2">━━━</span> Selected EA boundaries</div>
+</div>
+</section>
+
+<!-- ANALYTICS -->
+<aside class="panel right">
+<h2>Scenario analytics</h2>
+
+<div class="section">
+<div class="heading">Selected area</div>
+<div class="kpis">
+<div class="kpi"><span>Selected EAs</span><strong id="eaCount">—</strong><small>Boundary features</small></div>
+<div class="kpi"><span>Population</span><strong id="population">—</strong><small id="popField">Checking attributes</small></div>
+<div class="kpi"><span>Households</span><strong id="households">—</strong><small id="hhField">Checking attributes</small></div>
+<div class="kpi"><span>Rainfall total</span><strong id="rainKpi">150</strong><small>Scenario mm</small></div>
+</div>
+</div>
+
+<div class="section">
+<div class="heading">Rainfall scenario</div>
+<div class="stat"><span>Rainfall intensity</span><strong id="intensityOutput">50 mm/hr</strong></div>
+<div class="stat"><span>Duration</span><strong id="durationOutput">3 hours</strong></div>
+<div class="stat"><span>Accumulated rainfall</span><strong id="totalOutput">150 mm</strong></div>
+<div class="stat"><span>Simulation state</span><strong id="state">Ready</strong></div>
+<div class="track"><div class="fill" id="rainBar"></div></div>
+</div>
+
+<div class="section">
+<div class="heading">Illustrative rainfall profile</div>
+<canvas id="chart" width="500" height="180"></canvas>
+<div class="note">The chart represents the selected scenario intensity over the selected duration. It is not a measured rainfall time series.</div>
+</div>
+
+<div class="section">
+<div class="heading">Flow interpretation</div>
+<div class="stat"><span>Flow visualisation</span><strong id="flowStatus">Enabled</strong></div>
+<div class="stat"><span>Terrain sampling</span><strong id="terrainStatus">Waiting for DEM</strong></div>
+<div class="stat"><span>DEM samples available</span><strong id="terrainCount">0</strong></div>
+<div class="note" id="flowNote">Terrain-based direction will be used where elevation samples are available. Any fallback animation is illustrative and is not a measured drainage route.</div>
+</div>
+
+<div class="section">
+<div class="heading">Methodology and limitations</div>
+<div class="note">
+1. GBoS EA polygons define the selected analysis area.<br>
+2. Rainfall total = intensity × duration.<br>
+3. Animated droplets represent the rainfall scenario.<br>
+4. Surface-flow direction uses terrain elevation where available.<br>
+5. No calibrated infiltration, soil, drainage, river discharge, hydraulic routing or flood-depth model is included.
+</div>
+</div>
+
+<footer>
+Produced by Ansu Singhateh<br>
+GIS Analyst | GIS / Cartography Unit | Gambia Bureau of Statistics<br>
+GBoS GEOAI • Research and educational use
+</footer>
+</aside>
+</main>
 
 <script>
-'use strict';
+/* =====================================================
+   GBoS GEOAI - GAMBIA RAINFALL AND SURFACE FLOW
+   ===================================================== */
 
-/* =========================================================
-   1. CONFIGURATION
-========================================================= */
-
-const BOUNDARY_URLS = [
- 'https://raw.githubusercontent.com/silkysingz94-oss/Gambia-Flood-Terrain-Exposure/main/Census_EAs_Geo.json',
- 'https://cdn.jsdelivr.net/gh/silkysingz94-oss/Gambia-Flood-Terrain-Exposure@main/Census_EAs_Geo.json'
+const BOUNDARY_URLS=[
+ "https://raw.githubusercontent.com/silkysingz94-oss/Gambia-Flood-Terrain-Exposure/main/Census_EAs_Geo.json",
+ "https://cdn.jsdelivr.net/gh/silkysingz94-oss/Gambia-Flood-Terrain-Exposure@main/Census_EAs_Geo.json"
 ];
 
-const MAP_STYLE='https://tiles.openfreemap.org/styles/liberty';
-
-const DEM_TILES='https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
+const GAMBIA_BOUNDS=[[-16.95,13.0],[-13.75,13.95]];
+let features=[];
+let selected=[];
+let fields={};
+let selectedBounds=null;
+let running=false;
+let frameId=null;
+let lastTime=0;
+let drops=[];
+let particles=[];
+let terrainSamples=0;
+let terrainAttempted=false;
+let mapReady=false;
 
 const $=id=>document.getElementById(id);
 
-let allFeatures=[];
-let selectedFeatures=[];
-let sampledCells=[];
-let field={};
-let animationTimer=null;
-let animationRunning=true;
-let animationSpeed=1;
-let sampleVersion=0;
+/* ---------- ATTRIBUTE DETECTION ---------- */
 
-/* =========================================================
-   2. MAP
-========================================================= */
-
-const map=new maplibregl.Map({
- container:'map',
- style:MAP_STYLE,
- center:[-15.35,13.45],
- zoom:7.8,
- pitch:50,
- bearing:-10,
- antialias:true
-});
-
-map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'bottom-left');
-map.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-left');
-
-function setStatus(message){
- $('status').textContent=message;
+function normalise(s){
+ return String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
 }
 
-/* =========================================================
-   3. PROPERTY DETECTION
-========================================================= */
-
-function getPropertyKey(properties,candidates){
-
+function findField(properties,aliases){
  const keys=Object.keys(properties||{});
-
- for(const candidate of candidates){
-
-  const found=keys.find(k=>k.toLowerCase()===candidate.toLowerCase());
-
+ for(const alias of aliases){
+  const found=keys.find(k=>normalise(k)===normalise(alias));
   if(found)return found;
  }
-
- return '';
+ return null;
 }
 
-function property(feature,key){
+function detectFields(data){
+ const props=data.find(f=>f.properties)?.properties||{};
+ const keys=Object.keys(props);
 
- const value=feature.properties?.[key];
-
- return value===null||value===undefined?'':String(value).trim();
-}
-
-function detectFields(){
-
- const p=allFeatures[0]?.properties||{};
-
- field={
-  region:getPropertyKey(p,['lganame','lga','region','regionname','region_name']),
-  district:getPropertyKey(p,['distname','district','districtname','district_name']),
-  ward:getPropertyKey(p,['wardname','ward','ward_name']),
-  ea:getPropertyKey(p,['eaname','ea','enumeration_area','enumerationarea']),
-  code:getPropertyKey(p,['feacode','ea_code','eacode','code']),
-  population:getPropertyKey(p,['sum_pop','population','pop']),
-  households:getPropertyKey(p,['sum_hhs','households','hh'])
+ const result={
+  region:findField(props,["lganame","lga","region","regionname","region_name","admin1"]),
+  district:findField(props,["distname","district","districtname","district_name","admin2"]),
+  ward:findField(props,["wardname","ward","ward_name","admin3"]),
+  ea:findField(props,["eaname","ea","enumeration_area","enumerationarea","ea_name"]),
+  code:findField(props,["feacode","ea_code","eacode","code","eaid"]),
+  population:findField(props,[
+   "sum_pop","population","pop","POP","POPULATION","total_population",
+   "totalpop","pop_total","pop_sum","totpop","pop2023","pop_2023"
+  ]),
+  households:findField(props,[
+   "sum_hhs","households","hh","HH","total_households",
+   "totalhh","hh_total","hhs","household","hh_sum"
+  ])
  };
 
- console.log('Detected fields:',field);
- console.log('Example properties:',p);
-}
-
-function uniqueValues(features,key){
-
- return [...new Set(
-  features.map(f=>property(f,key)).filter(Boolean)
- )].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
-}
-
-function fillSelect(id,values,placeholder){
-
- const select=$(id);
- select.innerHTML='';
-
- const first=document.createElement('option');
- first.value='';
- first.textContent=placeholder;
- select.appendChild(first);
-
- values.forEach(value=>{
-  const option=document.createElement('option');
-  option.value=value;
-  option.textContent=value;
-  select.appendChild(option);
- });
-}
-
-/* =========================================================
-   4. MAP LAYERS
-========================================================= */
-
-function addTerrain(){
-
- if(!map.getSource('terrain-dem')){
-
-  map.addSource('terrain-dem',{
-   type:'raster-dem',
-   tiles:[DEM_TILES],
-   tileSize:256,
-   encoding:'terrarium',
-   maxzoom:15
-  });
+ // If aliases are not found, search for plausible property names.
+ if(!result.population){
+  result.population=keys.find(k=>{
+   const n=normalise(k);
+   return (n.includes("pop")||n.includes("population")) &&
+          !n.includes("density")&&!n.includes("percent")&&!n.includes("growth");
+  })||null;
  }
-
- map.setTerrain({
-  source:'terrain-dem',
-  exaggeration:Number($('exaggeration').value)
- });
+ if(!result.households){
+  result.households=keys.find(k=>{
+   const n=normalise(k);
+   return n.includes("hh")||n.includes("household");
+  })||null;
+ }
+ return result;
 }
 
-function addMapLayers(){
-
- map.addSource('selected-eas',{
-  type:'geojson',
-  data:{type:'FeatureCollection',features:[]}
- });
-
- map.addLayer({
-  id:'ea-fill',
-  type:'fill',
-  source:'selected-eas',
-  paint:{
-   'fill-color':'#55d3c2',
-   'fill-opacity':0.035
-  }
- });
-
- map.addLayer({
-  id:'ea-outline',
-  type:'line',
-  source:'selected-eas',
-  paint:{
-   'line-color':'#55d3c2',
-   'line-width':1.1,
-   'line-opacity':0.9
-  }
- });
-
- map.addSource('scenario-points',{
-  type:'geojson',
-  data:{type:'FeatureCollection',features:[]}
- });
-
- map.addLayer({
-  id:'scenario-points-layer',
-  type:'circle',
-  source:'scenario-points',
-  paint:{
-   'circle-radius':3.5,
-   'circle-color':['case',['get','below'],'#168fd0','#e95449'],
-   'circle-opacity':0.8,
-   'circle-stroke-width':0.5,
-   'circle-stroke-color':'#ffffff'
-  }
- });
-
- addTerrain();
+function value(f,key){
+ if(!key||!f.properties)return "";
+ const v=f.properties[key];
+ return v===null||v===undefined?"":v;
 }
 
-/* =========================================================
-   5. BOUNDARY LOADER WITH FALLBACK
-========================================================= */
-
-async function loadBoundaries(){
-
- setStatus('Connecting to GBoS GitHub boundaries...');
-
- let geojson=null;
- let errors=[];
-
- for(const url of BOUNDARY_URLS){
-
-  try{
-
-   console.log('Trying boundary URL:',url);
-
-   const response=await fetch(url,{cache:'no-store'});
-
-   if(!response.ok){
-    throw new Error('HTTP '+response.status);
-   }
-
-   const data=await response.json();
-
-   if(data.type!=='FeatureCollection'||
-      !Array.isArray(data.features)||
-      data.features.length===0){
-
-    throw new Error('Invalid or empty GeoJSON FeatureCollection');
-   }
-
-   geojson=data;
-   console.log('Boundary source loaded:',url);
-   break;
-
-  }catch(error){
-
-   errors.push(url+': '+error.message);
-   console.error('Boundary source failed:',error);
-  }
- }
-
- if(!geojson){
-
-  setStatus('BOUNDARY ERROR: '+errors.join(' | '));
-
-  $('region').innerHTML='<option value="">Boundary loading failed</option>';
-
-  return;
- }
-
- allFeatures=geojson.features.filter(feature=>
-  feature.geometry&&
-  feature.properties&&
-  ['Polygon','MultiPolygon'].includes(feature.geometry.type)
- );
-
- if(!allFeatures.length){
-
-  setStatus('ERROR: No valid EA polygon geometries found.');
-  return;
- }
-
- detectFields();
-
- if(!field.region||!field.district||!field.ward){
-
-  setStatus('ERROR: Missing administrative fields. Check GeoJSON properties.');
-
-  console.error('Available fields:',Object.keys(allFeatures[0].properties));
-
-  return;
- }
-
- const regions=uniqueValues(allFeatures,field.region);
-
- fillSelect('region',regions,'All The Gambia');
- $('region').disabled=false;
-
- fillSelect('district',[],'All districts');
- fillSelect('ward',[],'All wards');
- fillSelect('ea',[],'All enumeration areas');
-
- $('district').disabled=true;
- $('ward').disabled=true;
- $('ea').disabled=true;
-
- // Default national selection.
- $('region').value='';
-
- selectedFeatures=allFeatures;
-
- map.getSource('selected-eas').setData({
-  type:'FeatureCollection',
-  features:selectedFeatures
- });
-
- $('eaCount').textContent=allFeatures.length.toLocaleString();
- $('areaLabel').textContent='THE GAMBIA';
- $('summaryTitle').textContent='The Gambia';
-
- $('summaryDescription').textContent=
-  allFeatures.length.toLocaleString()+' GBoS EA polygons loaded.';
-
- setStatus('SUCCESS: '+allFeatures.length.toLocaleString()+' EA boundaries loaded.');
-
- zoomToFeatures(allFeatures);
-
- const version=++sampleVersion;
-
- map.once('idle',()=>{
-  if(version===sampleVersion)sampleTerrain(version);
- });
+function numericValue(f,key){
+ const raw=value(f,key);
+ if(raw==="")return null;
+ const n=Number(String(raw).replace(/,/g,""));
+ return Number.isFinite(n)?n:null;
 }
 
-/* =========================================================
-   6. FILTERING
-========================================================= */
+function unique(key,data=features){
+ if(!key)return [];
+ return [...new Set(data.map(f=>String(value(f,key))).filter(v=>v!==""))]
+  .sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+}
 
-function getFilteredFeatures(){
+function setOptions(id,values,firstLabel){
+ const el=$(id),old=el.value;
+ el.innerHTML="";
+ const first=document.createElement("option");
+ first.value="";first.textContent=firstLabel;
+ el.appendChild(first);
+ values.forEach(v=>{
+  const o=document.createElement("option");
+  o.value=v;o.textContent=v;el.appendChild(o);
+ });
+ if(values.includes(old))el.value=old;
+}
 
- const region=$('region').value;
- const district=$('district').value;
- const ward=$('ward').value;
- const ea=$('ea').value;
+function refreshSelectors(){
+ const r=$("region").value;
+ const d=$("district").value;
+ const w=$("ward").value;
 
- return allFeatures.filter(f=>{
+ const f1=features.filter(f=>!r||String(value(f,fields.region))===r);
+ setOptions("district",unique(fields.district,f1),"All districts");
 
-  if(region&&property(f,field.region)!==region)return false;
-  if(district&&property(f,field.district)!==district)return false;
-  if(ward&&property(f,field.ward)!==ward)return false;
+ const dv=$("district").value;
+ const f2=f1.filter(f=>!dv||String(value(f,fields.district))===dv);
+ setOptions("ward",unique(fields.ward,f2),"All wards");
 
-  if(ea&&property(f,field.ea)!==ea&&property(f,field.code)!==ea)return false;
+ const wv=$("ward").value;
+ const f3=f2.filter(f=>!wv||String(value(f,fields.ward))===wv);
+ const eaNames=unique(fields.ea,f3);
+ setOptions("ea",eaNames.length?eaNames:unique(fields.code,f3),"All EAs");
+}
 
+function filterFeatures(){
+ const r=$("region").value,d=$("district").value;
+ const w=$("ward").value,e=$("ea").value;
+
+ return features.filter(f=>{
+  if(r&&String(value(f,fields.region))!==r)return false;
+  if(d&&String(value(f,fields.district))!==d)return false;
+  if(w&&String(value(f,fields.ward))!==w)return false;
+  if(e&&String(value(f,fields.ea))!==e&&String(value(f,fields.code))!==e)return false;
   return true;
  });
 }
 
-function updateDistricts(){
+function setStatus(msg){$("status").textContent=msg}
 
- const region=$('region').value;
+/* ---------- LOAD GEOJSON ---------- */
 
- const features=allFeatures.filter(f=>
-  !region||property(f,field.region)===region
- );
+async function loadBoundaries(){
+ let lastError="No source could be loaded.";
+ setStatus("Loading GBoS enumeration-area GeoJSON…");
 
- fillSelect('district',uniqueValues(features,field.district),'All districts');
-
- $('district').disabled=!region;
-
- fillSelect('ward',[],'All wards');
- fillSelect('ea',[],'All enumeration areas');
-
- $('ward').disabled=true;
- $('ea').disabled=true;
-
- updateArea();
-}
-
-function updateWards(){
-
- const region=$('region').value;
- const district=$('district').value;
-
- const features=allFeatures.filter(f=>
-  (!region||property(f,field.region)===region)&&
-  (!district||property(f,field.district)===district)
- );
-
- fillSelect('ward',uniqueValues(features,field.ward),'All wards');
- $('ward').disabled=!district;
-
- fillSelect('ea',[],'All enumeration areas');
- $('ea').disabled=true;
-
- updateArea();
-}
-
-function updateEAs(){
-
- const region=$('region').value;
- const district=$('district').value;
- const ward=$('ward').value;
-
- const features=allFeatures.filter(f=>
-  (!region||property(f,field.region)===region)&&
-  (!district||property(f,field.district)===district)&&
-  (!ward||property(f,field.ward)===ward)
- );
-
- const values=[
-  ...new Set(features.map(f=>
-   property(f,field.ea)||property(f,field.code)
-  ).filter(Boolean))
- ].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
-
- fillSelect('ea',values,'All enumeration areas');
- $('ea').disabled=!ward||!values.length;
-
- updateArea();
-}
-
-/* =========================================================
-   7. EXTENT
-========================================================= */
-
-function getBounds(features){
-
- let bounds=null;
-
- features.forEach(feature=>{
-
+ for(const url of BOUNDARY_URLS){
   try{
+   const response=await fetch(url,{cache:"no-store"});
+   if(!response.ok)throw new Error("HTTP "+response.status);
+   const data=await response.json();
 
-   const b=turf.bbox(feature);
-
-   if(!bounds)bounds=b;
-
-   else{
-    bounds[0]=Math.min(bounds[0],b[0]);
-    bounds[1]=Math.min(bounds[1],b[1]);
-    bounds[2]=Math.max(bounds[2],b[2]);
-    bounds[3]=Math.max(bounds[3],b[3]);
+   if(data.type==="FeatureCollection"&&Array.isArray(data.features)){
+    features=data.features.filter(f=>f.geometry);
+   }else if(data.type==="Feature"&&data.geometry){
+    features=[data];
+   }else{
+    throw new Error("Invalid GeoJSON structure");
    }
 
-  }catch(error){}
- });
+   if(!features.length)throw new Error("GeoJSON contains no features");
 
- return bounds;
-}
+   fields=detectFields(features);
+   setOptions("region",unique(fields.region),"All Gambia");
+   refreshSelectors();
 
-function zoomToFeatures(features){
+   selected=features.slice();
+   setStatus("Loaded "+features.length.toLocaleString()+
+    " EA boundary features. National Gambia view selected.");
 
- if(!features.length)return;
-
- const b=getBounds(features);
- if(!b)return;
-
- map.fitBounds(
-  [[b[0],b[1]],[b[2],b[3]]],
-  {
-   padding:{top:90,bottom:80,left:40,right:40},
-   duration:900,
-   maxZoom:13
-  }
- );
-}
-
-/* =========================================================
-   8. SELECTED AREA
-========================================================= */
-
-function updateArea(){
-
- if(!allFeatures.length)return;
-
- selectedFeatures=getFilteredFeatures();
-
- if(!selectedFeatures.length){
-
-  setStatus('No EAs found for this administrative selection.');
-  return;
+   if(mapReady)applySelection(true);
+   return;
+  }catch(error){lastError=error.message}
  }
 
- map.getSource('selected-eas').setData({
-  type:'FeatureCollection',
-  features:selectedFeatures
- });
-
- $('eaCount').textContent=selectedFeatures.length.toLocaleString();
-
- const label=[
-  $('ea').value,
-  $('ward').value,
-  $('district').value,
-  $('region').value
- ].filter(Boolean).join(' / ')||'The Gambia';
-
- $('areaLabel').textContent=label.length>23?label.substring(0,20)+'...':label;
- $('summaryTitle').textContent=label;
-
- $('summaryDescription').textContent=
-  selectedFeatures.length.toLocaleString()+' selected EA polygons.';
-
- setStatus('Selected area: '+label);
-
- zoomToFeatures(selectedFeatures);
-
- const version=++sampleVersion;
-
- map.once('idle',()=>{
-  if(version===sampleVersion)sampleTerrain(version);
- });
+ setStatus("Boundary loading failed: "+lastError+
+  ". Confirm that Census_EAs_Geo.json is public and available in the repository.");
 }
 
-/* =========================================================
-   9. TERRAIN SAMPLING
-========================================================= */
+/* ---------- MAP ---------- */
 
-function insideArea(point){
-
- for(const feature of selectedFeatures){
-
-  try{
-   if(turf.booleanPointInPolygon(point,feature))return true;
-  }catch(error){}
- }
-
- return false;
-}
-
-function sampleTerrain(version){
-
- if(version!==sampleVersion||!selectedFeatures.length)return;
-
- const bounds=getBounds(selectedFeatures);
- if(!bounds)return;
-
- setStatus('Sampling terrain within selected boundaries...');
-
- sampledCells=[];
-
- const width=bounds[2]-bounds[0];
- const height=bounds[3]-bounds[1];
-
- // Limit national sampling to approximately 1,500 points.
- const estimate=Math.ceil(width/0.012)*Math.ceil(height/0.012);
- const stride=Math.max(1,Math.ceil(Math.sqrt(estimate/1500)));
-
- const dx=0.012*stride;
- const dy=0.012*stride;
-
- const points=[];
-
- for(let lat=bounds[1]+dy/2;lat<bounds[3];lat+=dy){
-
-  for(let lon=bounds[0]+dx/2;lon<bounds[2];lon+=dx){
-
-   const p=turf.point([lon,lat]);
-
-   if(insideArea(p))points.push([lon,lat]);
-  }
- }
-
- if(!points.length){
-
-  $('sampleCount').textContent='0';
-  $('meanElevation').textContent='No data';
-  $('belowCount').textContent='0';
-  $('lowArea').textContent='0 km²';
-
-  setStatus('No valid terrain sample locations found.');
-  updateScenario();
-  return;
- }
-
- let index=0;
-
- function processBatch(){
-
-  if(version!==sampleVersion)return;
-
-  const end=Math.min(index+25,points.length);
-
-  for(;index<end;index++){
-
-   const [lon,lat]=points[index];
-
-   try{
-
-    const elevation=map.queryTerrainElevation(
-     {lng:lon,lat:lat},
-     {exaggerated:false}
-    );
-
-    if(Number.isFinite(elevation)&&elevation>-20&&elevation<1000){
-
-     const cellArea=
-      dx*111.32*dy*111.32*Math.cos(lat*Math.PI/180);
-
-     sampledCells.push({
-      longitude:lon,
-      latitude:lat,
-      elevation:elevation,
-      cellArea:cellArea
-     });
-    }
-
-   }catch(error){}
-  }
-
-  if(index<points.length){
-
-   requestAnimationFrame(processBatch);
-
-  }else{
-
-   finishStatistics();
-
-   setStatus('Terrain sampling completed for selected area.');
-  }
- }
-
- processBatch();
-}
-
-/* =========================================================
-   10. SCENARIO
-========================================================= */
-
-function finishStatistics(){
-
- const elevations=sampledCells.map(p=>p.elevation);
-
- const mean=elevations.length
-  ?elevations.reduce((a,b)=>a+b,0)/elevations.length
-  :NaN;
-
- $('sampleCount').textContent=sampledCells.length.toLocaleString();
-
- $('meanElevation').textContent=
-  Number.isFinite(mean)?mean.toFixed(2)+' m':'No data';
-
- updateScenario();
-}
-
-function updateScenario(){
-
- const threshold=Number($('stage').value);
-
- let belowCount=0;
- let lowArea=0;
-
- const features=sampledCells.map(p=>{
-
-  const below=p.elevation<=threshold;
-
-  if(below){
-   belowCount++;
-   lowArea+=p.cellArea;
-  }
-
-  return{
-   type:'Feature',
-   properties:{
-    elevation_m:p.elevation,
-    threshold_m:threshold,
-    below:below
+const map=new maplibregl.Map({
+ container:"map",
+ center:[-15.40,13.45],
+ zoom:7.1,
+ minZoom:5,
+ maxZoom:18,
+ pitch:35,
+ style:{
+  version:8,
+  sources:{
+   osm:{
+    type:"raster",
+    tiles:["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+    tileSize:256,
+    attribution:"© OpenStreetMap contributors"
    },
-   geometry:{
-    type:'Point',
-    coordinates:[p.longitude,p.latitude]
+   satellite:{
+    type:"raster",
+    tiles:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+    tileSize:256,
+    attribution:"Esri World Imagery"
+   },
+   dem:{
+    type:"raster-dem",
+    tiles:["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+    tileSize:256,
+    encoding:"terrarium",
+    maxzoom:15
    }
-  };
+  },
+  layers:[
+   {id:"osm",type:"raster",source:"osm"},
+   {id:"satellite",type:"raster",source:"satellite",layout:{visibility:"none"}}
+  ]
+ },
+ attributionControl:true
+});
+
+map.addControl(new maplibregl.NavigationControl(),"top-right");
+map.addControl(new maplibregl.ScaleControl({unit:"metric"}),"bottom-right");
+
+map.on("load",()=>{
+ mapReady=true;
+
+ map.addSource("ea-source",{
+  type:"geojson",
+  data:{type:"FeatureCollection",features:[]}
  });
 
- if(map.getSource('scenario-points')){
+ map.addLayer({
+  id:"ea-fill",type:"fill",source:"ea-source",
+  paint:{"fill-color":"#168bd2","fill-opacity":0.08}
+ });
 
-  map.getSource('scenario-points').setData({
-   type:'FeatureCollection',
-   features:features
+ map.addLayer({
+  id:"ea-outline",type:"line",source:"ea-source",
+  paint:{"line-color":"#168bd2","line-width":1.1,"line-opacity":0.9}
+ });
+
+ // Activate DEM immediately rather than waiting for a later idle event.
+ try{
+  map.setTerrain({source:"dem",exaggeration:1.15});
+  $("terrainStatus").textContent="DEM activated; waiting for tiles";
+ }catch(e){
+  $("terrainStatus").textContent="DEM activation unavailable";
+ }
+
+ map.fitBounds(GAMBIA_BOUNDS,{padding:35,duration:0});
+ loadBoundaries();
+
+ setTimeout(()=>attemptTerrainSampling(),1800);
+});
+
+map.on("idle",()=>{
+ if(mapReady&&selected.length&&!terrainAttempted){
+  attemptTerrainSampling();
+ }
+});
+
+map.on("moveend",()=>{
+ if(mapReady&&selected.length){
+  attemptTerrainSampling();
+ }
+});
+
+function getBounds(data){
+ let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+ function walk(c){
+  if(!Array.isArray(c))return;
+  if(typeof c[0]==="number"&&typeof c[1]==="number"){
+   minX=Math.min(minX,c[0]);minY=Math.min(minY,c[1]);
+   maxX=Math.max(maxX,c[0]);maxY=Math.max(maxY,c[1]);
+  }else c.forEach(walk);
+ }
+ data.forEach(f=>walk(f.geometry?.coordinates));
+ if(!Number.isFinite(minX))return null;
+ return [[minX,minY],[maxX,maxY]];
+}
+
+function applySelection(fit=true){
+ if(!mapReady||!features.length)return;
+ selected=filterFeatures();
+
+ const src=map.getSource("ea-source");
+ if(src)src.setData({type:"FeatureCollection",features:selected});
+
+ selectedBounds=getBounds(selected);
+
+ const title=$("ea").value||$("ward").value||
+  $("district").value||$("region").value||"THE GAMBIA";
+
+ $("areaTitle").textContent=title.toUpperCase();
+ $("areaSubtitle").textContent=selected.length.toLocaleString()+" selected EA features";
+
+ if(fit&&selectedBounds){
+  map.fitBounds(selectedBounds,{padding:55,maxZoom:13,duration:700});
+ }
+
+ updateAnalytics();
+ initialiseParticles();
+ terrainAttempted=false;
+ setTimeout(attemptTerrainSampling,1500);
+ setStatus("Selected "+selected.length.toLocaleString()+" EA features.");
+}
+
+/* ---------- ADMIN SELECTORS ---------- */
+
+$("region").addEventListener("change",()=>{
+ refreshSelectors();applySelection(false);
+});
+$("district").addEventListener("change",()=>{
+ refreshSelectors();applySelection(false);
+});
+$("ward").addEventListener("change",()=>{
+ refreshSelectors();applySelection(false);
+});
+$("ea").addEventListener("change",()=>applySelection(false));
+$("apply").addEventListener("click",()=>applySelection(true));
+
+$("resetArea").addEventListener("click",()=>{
+ $("region").value="";
+ refreshSelectors();
+ $("district").value="";
+ refreshSelectors();
+ $("ward").value="";
+ refreshSelectors();
+ $("ea").value="";
+ applySelection(true);
+ map.fitBounds(GAMBIA_BOUNDS,{padding:35,duration:700});
+});
+
+/* ---------- ANALYTICS ---------- */
+
+function updateAnalytics(){
+ let pop=0,hh=0,popN=0,hhN=0;
+
+ selected.forEach(f=>{
+  const p=numericValue(f,fields.population);
+  const h=numericValue(f,fields.households);
+  if(p!==null){pop+=p;popN++}
+  if(h!==null){hh+=h;hhN++}
+ });
+
+ $("eaCount").textContent=selected.length.toLocaleString();
+ $("population").textContent=popN?Math.round(pop).toLocaleString():"Not available";
+ $("households").textContent=hhN?Math.round(hh).toLocaleString():"Not available";
+
+ $("popField").textContent=fields.population
+  ?fields.population+" • "+popN+" records":"Population field not found";
+ $("hhField").textContent=fields.households
+  ?fields.households+" • "+hhN+" records":"Household field not found";
+
+ if(!fields.population||!fields.households){
+  const keys=Object.keys(features[0]?.properties||{});
+  setStatus("Boundary loaded. Attribute fields detected: "+
+   keys.join(", ")+". Population/household totals appear only where matching attributes exist.");
+ }
+}
+
+/* ---------- TERRAIN AND FLOW PARTICLES ---------- */
+
+function sampleElevation(lng,lat){
+ try{
+  const z=map.queryTerrainElevation([lng,lat],{exaggerated:false});
+  return Number.isFinite(z)?z:null;
+ }catch(e){return null}
+}
+
+function getDownhill(lng,lat){
+ const d=0.001;
+ const e=sampleElevation(lng+d,lat);
+ const w=sampleElevation(lng-d,lat);
+ const n=sampleElevation(lng,lat+d);
+ const s=sampleElevation(lng,lat-d);
+
+ if([e,w,n,s].some(v=>v===null))return null;
+
+ // Elevation decreases in the direction of the vector.
+ let dx=w-e;
+ let dy=s-n;
+ const m=Math.hypot(dx,dy);
+ if(m<0.00001)return null;
+ return {x:dx/m,y:dy/m};
+}
+
+function randomCoordinate(){
+ if(!selectedBounds){
+  return [-15.4,13.45];
+ }
+ return [
+  selectedBounds[0][0]+Math.random()*(selectedBounds[1][0]-selectedBounds[0][0]),
+  selectedBounds[0][1]+Math.random()*(selectedBounds[1][1]-selectedBounds[0][1])
+ ];
+}
+
+function initialiseParticles(){
+ particles=[];
+ for(let i=0;i<100;i++){
+  const c=randomCoordinate();
+  particles.push({
+   lng:c[0],lat:c[1],
+   direction:null,
+   age:Math.random()*3000,
+   opacity:0.4+Math.random()*0.5,
+   size:1.4+Math.random()*1.6
   });
  }
-
- $('stageText').innerHTML=threshold.toFixed(2)+' <small>m</small>';
- $('scenarioLabel').textContent=threshold.toFixed(2)+' m';
- $('thresholdKPI').textContent=threshold.toFixed(2)+' m';
-
- $('belowCount').textContent=belowCount.toLocaleString();
- $('lowArea').textContent=lowArea.toFixed(2)+' km²';
-
- $('summaryDescription').textContent=
-  belowCount.toLocaleString()+
-  ' terrain samples at/below '+threshold.toFixed(2)+
-  ' m. Estimated sample-cell area: '+lowArea.toFixed(2)+' km².';
+ terrainAttempted=false;
 }
 
-/* =========================================================
-   11. ANIMATION
-========================================================= */
+function attemptTerrainSampling(){
+ if(!mapReady||!selected.length)return;
 
-function stopAnimation(){
+ let success=0;
+ particles.forEach(p=>{
+  const direction=getDownhill(p.lng,p.lat);
+  if(direction){
+   p.direction=direction;
+   success++;
+  }
+ });
 
- if(animationTimer)clearInterval(animationTimer);
+ terrainSamples=success;
+ terrainAttempted=true;
 
- animationTimer=null;
- animationRunning=false;
+ $("terrainCount").textContent=success+" / "+particles.length;
 
- $('play').textContent='▶ PLAY';
+ if(success>0){
+  $("terrainStatus").textContent="Terrain samples available";
+  $("flowNote").textContent=
+   "Some particles use local DEM elevation gradients to estimate downslope direction. This remains a simplified terrain-screening visualisation, not a calibrated hydraulic flow model.";
+ }else{
+  $("terrainStatus").textContent="DEM samples unavailable";
+  $("flowNote").textContent=
+   "The map could not obtain valid elevation samples. Animated particles are therefore illustrative only and do not represent actual terrain drainage routes. Check DEM tile access and map zoom.";
+ }
 }
 
-function startAnimation(){
+/* ---------- RAINFALL CALCULATIONS ---------- */
 
- stopAnimation();
-
- animationRunning=true;
- $('play').textContent='Ⅱ PAUSE';
-
- animationTimer=setInterval(()=>{
-
-  let value=Number($('stage').value)+0.025*animationSpeed;
-
-  if(value>5)value=0;
-
-  $('stage').value=value;
-  updateScenario();
-
- },120);
+function rainfall(){
+ const intensity=Number($("intensity").value);
+ const duration=Number($("duration").value);
+ return {intensity,duration,total:intensity*duration};
 }
 
-/* =========================================================
-   12. EXPORTS
-========================================================= */
-
-function downloadFile(content,filename,type){
-
- const blob=new Blob([content],{type:type});
- const url=URL.createObjectURL(blob);
-
- const link=document.createElement('a');
- link.href=url;
- link.download=filename;
- link.click();
-
- setTimeout(()=>URL.revokeObjectURL(url),1000);
+function updateRain(){
+ const r=rainfall();
+ $("rainLabel").textContent=r.intensity+" mm/hr";
+ $("totalLabel").textContent=r.total+" mm";
+ $("rainKpi").textContent=r.total.toLocaleString();
+ $("intensityOutput").textContent=r.intensity+" mm/hr";
+ $("durationOutput").textContent=r.duration+" hours";
+ $("totalOutput").textContent=r.total+" mm";
+ $("rainBar").style.width=Math.min(100,r.total/36)+"%";
+ drawChart();
 }
 
-function exportGeoJSON(){
+$("intensity").addEventListener("input",()=>{
+ $("preset").value="custom";
+ updateRain();
+ initialiseDrops();
+});
+$("duration").addEventListener("change",()=>{
+ $("preset").value="custom";updateRain();
+});
+$("preset").addEventListener("change",()=>{
+ if($("preset").value!=="custom"){
+  $("intensity").value=$("preset").value;
+ }
+ updateRain();initialiseDrops();
+});
 
- const output={
-  type:'FeatureCollection',
-  name:'Gambia_Selected_Area_EAs',
-  metadata:{
-   repository:'silkysingz94-oss/Gambia-Flood-Terrain-Exposure',
-   source:'Census_EAs_Geo.json',
-   region:$('region').value,
-   district:$('district').value,
-   ward:$('ward').value,
-   ea:$('ea').value,
-   threshold_m:Number($('stage').value),
-   method:'Terrain elevation threshold screening',
-   limitation:'Not a hydraulic flood extent.'
-  },
-  features:selectedFeatures
- };
+/* ---------- RAINFALL CHART ---------- */
 
- downloadFile(
-  JSON.stringify(output,null,2),
-  'Gambia_Selected_Area_EAs.geojson',
-  'application/geo+json'
- );
+function drawChart(){
+ const c=$("chart"),g=c.getContext("2d");
+ const w=c.width,h=c.height;
+ const r=rainfall();
+ g.clearRect(0,0,w,h);
+
+ const top=20,bottom=h-28,left=42,right=w-12;
+ const max=Math.max(10,r.intensity*1.2);
+
+ g.strokeStyle="#e2eaf0";
+ g.lineWidth=1;
+ for(let i=0;i<4;i++){
+  const y=top+(bottom-top)*i/3;
+  g.beginPath();g.moveTo(left,y);g.lineTo(right,y);g.stroke();
+ }
+
+ g.fillStyle="#6d8294";g.font="11px Arial";
+ g.fillText("mm/hr",5,13);
+ g.fillText("0",20,bottom+4);
+ g.fillText(r.duration+" hours",right-70,h-5);
+
+ const y=bottom-(r.intensity/max)*(bottom-top);
+ g.strokeStyle="#168bd2";g.lineWidth=3;
+ g.beginPath();g.moveTo(left,y);g.lineTo(right,y);g.stroke();
+ g.fillStyle="#168bd2";g.fillText(r.intensity+" mm/hr",left+5,y-8);
 }
 
-function exportCSV(){
+/* ---------- ANIMATION CANVAS ---------- */
 
- const threshold=Number($('stage').value);
+const canvas=$("animationCanvas");
+const ctx=canvas.getContext("2d");
 
- const rows=[[
-  'longitude','latitude','elevation_m',
-  'threshold_m','at_or_below_threshold',
-  'estimated_sample_cell_area_km2'
- ]];
+function resizeCanvas(){
+ const rect=canvas.getBoundingClientRect();
+ const dpr=Math.min(window.devicePixelRatio||1,2);
+ canvas.width=Math.max(1,Math.round(rect.width*dpr));
+ canvas.height=Math.max(1,Math.round(rect.height*dpr));
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ initialiseDrops();
+ if(!particles.length)initialiseParticles();
+}
+window.addEventListener("resize",resizeCanvas);
 
- sampledCells.forEach(p=>{
+function rand(a,b){return a+Math.random()*(b-a)}
 
+function initialiseDrops(){
+ const rect=canvas.getBoundingClientRect();
+ const count=Math.min(300,30+Number($("intensity").value)*1.6);
+ drops=Array.from({length:count},()=>({
+  x:rand(0,rect.width),y:rand(-rect.height,rect.height),
+  length:rand(8,17),speed:rand(3,7)+Number($("intensity").value)/45,
+  drift:rand(-1.4,1.4)
+ }));
+}
+
+function drawRain(){
+ if(!$("rainToggle").checked||rainfall().intensity===0)return;
+ const rect=canvas.getBoundingClientRect();
+
+ ctx.save();
+ ctx.strokeStyle="rgba(30,160,225,.78)";
+ ctx.lineWidth=1.4;ctx.lineCap="round";
+
+ drops.forEach(d=>{
+  ctx.beginPath();
+  ctx.moveTo(d.x,d.y);
+  ctx.lineTo(d.x+d.drift,d.y+d.length);
+  ctx.stroke();
+
+  d.y+=d.speed;d.x+=d.drift;
+  if(d.y>rect.height+20){
+   d.y=rand(-50,-5);d.x=rand(0,rect.width);
+  }
+  if(d.x<0)d.x=rect.width;
+  if(d.x>rect.width)d.x=0;
+ });
+ ctx.restore();
+}
+
+function drawFlow(delta){
+ if(!$("flowToggle").checked)return;
+
+ const speed=Number($("speed").value);
+ const rect=canvas.getBoundingClientRect();
+
+ ctx.save();
+ ctx.fillStyle="#00a995";
+ ctx.strokeStyle="rgba(0,169,149,.75)";
+ ctx.lineWidth=1.5;
+
+ particles.forEach(p=>{
+  const point=map.project([p.lng,p.lat]);
+
+  if(point.x>=-10&&point.x<=rect.width+10&&
+     point.y>=-10&&point.y<=rect.height+10){
+   ctx.globalAlpha=p.opacity;
+   ctx.beginPath();
+   ctx.arc(point.x,point.y,p.size,0,Math.PI*2);
+   ctx.fill();
+
+   ctx.beginPath();
+   ctx.moveTo(point.x-5,point.y-3);
+   ctx.lineTo(point.x+4,point.y+3);
+   ctx.stroke();
+  }
+
+  const step=0.0000025*speed*(delta/16.7);
+
+  if(p.direction){
+   p.lng+=p.direction.x*step;
+   p.lat+=p.direction.y*step;
+  }else{
+   // Fallback animation only; it is not a terrain-derived direction.
+   p.lng+=step*0.35;
+   p.lat-=step*0.25;
+  }
+
+  p.age+=delta;
+
+  if(!selectedBounds||p.age>9000||
+    p.lng<selectedBounds[0][0]||p.lng>selectedBounds[1][0]||
+    p.lat<selectedBounds[0][1]||p.lat>selectedBounds[1][1]){
+   const c=randomCoordinate();
+   p.lng=c[0];p.lat=c[1];
+   p.direction=getDownhill(p.lng,p.lat);
+   p.age=0;
+  }
+ });
+ ctx.restore();
+}
+
+function animate(t){
+ if(!running)return;
+ const rect=canvas.getBoundingClientRect();
+ const delta=Math.min(50,t-(lastTime||t));
+ lastTime=t;
+ ctx.clearRect(0,0,rect.width,rect.height);
+ drawRain();
+ drawFlow(delta);
+ frameId=requestAnimationFrame(animate);
+}
+
+function runSimulation(){
+ if(running)return;
+ running=true;lastTime=0;
+ $("state").textContent="Running";
+ frameId=requestAnimationFrame(animate);
+}
+
+function stopSimulation(){
+ running=false;
+ if(frameId)cancelAnimationFrame(frameId);
+ frameId=null;
+ $("state").textContent="Stopped";
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function resetSimulation(){
+ stopSimulation();
+ initialiseDrops();
+ initialiseParticles();
+ updateRain();
+ $("state").textContent="Ready";
+ setTimeout(attemptTerrainSampling,1500);
+}
+
+/* ---------- LAYER CONTROLS ---------- */
+
+$("run").addEventListener("click",runSimulation);
+$("stop").addEventListener("click",stopSimulation);
+$("reset").addEventListener("click",resetSimulation);
+
+$("speed").addEventListener("input",()=>{
+ $("speedLabel").textContent=$("speed").value+" / 10";
+});
+
+$("flowToggle").addEventListener("change",()=>{
+ $("flowStatus").textContent=$("flowToggle").checked?"Enabled":"Disabled";
+});
+
+$("boundaryToggle").addEventListener("change",()=>{
+ const v=$("boundaryToggle").checked?"visible":"none";
+ map.setLayoutProperty("ea-fill","visibility",v);
+ map.setLayoutProperty("ea-outline","visibility",v);
+});
+
+$("terrainToggle").addEventListener("change",e=>{
+ try{
+  map.setTerrain(e.target.checked?{source:"dem",exaggeration:1.15}:null);
+  $("terrainStatus").textContent=e.target.checked?"DEM enabled; checking tiles":"Terrain disabled";
+  terrainAttempted=false;
+  setTimeout(attemptTerrainSampling,2000);
+ }catch(error){
+  $("terrainStatus").textContent="Terrain could not be enabled";
+ }
+});
+
+$("basemap").addEventListener("change",()=>{
+ const satellite=$("basemap").value==="satellite";
+ map.setLayoutProperty("osm","visibility",satellite?"none":"visible");
+ map.setLayoutProperty("satellite","visibility",satellite?"visible":"none");
+});
+
+/* ---------- CSV EXPORT ---------- */
+
+$("export").addEventListener("click",()=>{
+ const r=rainfall();
+ const rows=[
+  ["GBoS GEOAI - Gambia Rainfall and Surface Flow Scenario"],
+  ["Selected area",$("areaTitle").textContent],
+  ["Selected EA features",selected.length],
+  ["Rainfall intensity mm/hr",r.intensity],
+  ["Duration hours",r.duration],
+  ["Scenario rainfall total mm",r.total],
+  ["Population field",fields.population||"Not found"],
+  ["Household field",fields.households||"Not found"],
+  ["Terrain samples",terrainSamples],
+  ["Flow interpretation","Illustrative terrain-based screening only"],
+  [],
+  ["EA code","EA name","Region/LGA","District","Ward","Population","Households"]
+ ];
+
+ selected.forEach(f=>{
   rows.push([
-   p.longitude,p.latitude,p.elevation,
-   threshold,p.elevation<=threshold,p.cellArea
+   value(f,fields.code),value(f,fields.ea),value(f,fields.region),
+   value(f,fields.district),value(f,fields.ward),
+   value(f,fields.population),value(f,fields.households)
   ]);
  });
 
- const csv=rows.map(row=>
-  row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')
- ).join('\n');
+ const csv=rows.map(row=>row.map(v=>
+  '"'+String(v??"").replace(/"/g,'""')+'"'
+ ).join(",")).join("\r\n");
 
- downloadFile(
-  csv,
-  'Gambia_Selected_Area_Terrain_Samples.csv',
-  'text/csv'
- );
-}
-
-/* =========================================================
-   13. CONTROLS
-========================================================= */
-
-$('region').addEventListener('change',updateDistricts);
-$('district').addEventListener('change',updateWards);
-$('ward').addEventListener('change',updateEAs);
-$('ea').addEventListener('change',updateArea);
-
-$('national').addEventListener('click',()=>{
-
- $('region').value='';
-
- fillSelect('district',[],'All districts');
- fillSelect('ward',[],'All wards');
- fillSelect('ea',[],'All enumeration areas');
-
- $('district').disabled=true;
- $('ward').disabled=true;
- $('ea').disabled=true;
-
- updateArea();
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;a.download="Gambia_Rainfall_Surface_Flow_Scenario.csv";
+ a.click();
+ URL.revokeObjectURL(url);
 });
 
-$('zoomArea').addEventListener('click',()=>zoomToFeatures(selectedFeatures));
+/* ---------- STARTUP ---------- */
 
-$('zoomLevel').addEventListener('input',e=>{
- map.easeTo({zoom:Number(e.target.value),duration:250});
-});
+updateRain();
+initialiseDrops();
+resizeCanvas();
 
-$('stage').addEventListener('input',updateScenario);
-
-$('play').addEventListener('click',()=>{
- animationRunning?stopAnimation():startAnimation();
-});
-
-$('reset').addEventListener('click',()=>{
- $('stage').value=1.6;
- updateScenario();
- startAnimation();
-});
-
-document.querySelectorAll('.scenario').forEach(button=>{
- button.addEventListener('click',()=>{
-  $('stage').value=Number(button.dataset.level);
-  updateScenario();
- });
-});
-
-document.querySelectorAll('.speed').forEach(button=>{
- button.addEventListener('click',()=>{
-
-  animationSpeed=Number(button.dataset.speed);
-
-  document.querySelectorAll('.speed').forEach(b=>
-   b.classList.toggle('active',b===button)
-  );
-
-  if(animationRunning)startAnimation();
- });
-});
-
-function setVisibility(layer,visible){
-
- if(map.getLayer(layer)){
-  map.setLayoutProperty(layer,'visibility',visible?'visible':'none');
- }
-}
-
-$('showEA').addEventListener('change',e=>{
- setVisibility('ea-fill',e.target.checked);
- setVisibility('ea-outline',e.target.checked);
-});
-
-$('showScenario').addEventListener('change',e=>{
- setVisibility('scenario-points-layer',e.target.checked);
-});
-
-$('showRain').addEventListener('change',e=>{
- $('rain').classList.toggle('on',e.target.checked);
- $('rainButton').textContent=e.target.checked?'RAIN ON':'RAIN OFF';
-});
-
-$('rainButton').addEventListener('click',()=>{
- $('showRain').checked=!$('showRain').checked;
- $('showRain').dispatchEvent(new Event('change'));
-});
-
-$('showTerrain').addEventListener('change',e=>{
- if(e.target.checked)addTerrain();
- else map.setTerrain(null);
-});
-
-$('exaggeration').addEventListener('change',()=>{
- if($('showTerrain').checked)addTerrain();
-});
-
-$('opacity').addEventListener('input',e=>{
- if(map.getLayer('scenario-points-layer')){
-  map.setPaintProperty(
-   'scenario-points-layer',
-   'circle-opacity',
-   Number(e.target.value)/100
-  );
- }
-});
-
-$('view2d').addEventListener('click',()=>{
- map.easeTo({pitch:0,bearing:0,duration:700});
- $('view2d').classList.add('active');
- $('view3d').classList.remove('active');
-});
-
-$('view3d').addEventListener('click',()=>{
- map.easeTo({pitch:50,bearing:-10,duration:700});
- $('view3d').classList.add('active');
- $('view2d').classList.remove('active');
-});
-
-$('fit').addEventListener('click',()=>zoomToFeatures(selectedFeatures));
-
-$('orbit').addEventListener('click',()=>{
- map.dragRotate.enable();
- $('orbit').classList.add('active');
- $('pan').classList.remove('active');
-});
-
-$('pan').addEventListener('click',()=>{
- map.dragRotate.disable();
- $('pan').classList.add('active');
- $('orbit').classList.remove('active');
-});
-
-$('exportGeo').addEventListener('click',exportGeoJSON);
-$('exportCSV').addEventListener('click',exportCSV);
-
-/* =========================================================
-   14. MAP INSPECTION
-========================================================= */
-
-map.on('click',event=>{
-
- let elevation='Not available';
-
- try{
-
-  const z=map.queryTerrainElevation(event.lngLat,{exaggerated:false});
-
-  if(Number.isFinite(z))elevation=z.toFixed(2)+' m';
-
- }catch(error){}
-
- const html=`
- <div style="color:#173746;font-size:12px">
- <strong>Terrain inspection</strong><br>
- Longitude: ${event.lngLat.lng.toFixed(5)}<br>
- Latitude: ${event.lngLat.lat.toFixed(5)}<br>
- Elevation: ${elevation}
- </div>`;
-
- new maplibregl.Popup()
-  .setLngLat(event.lngLat)
-  .setHTML(html)
-  .addTo(map);
-});
-
-/* =========================================================
-   15. START APPLICATION
-========================================================= */
-
-map.on('load',()=>{
-
- setStatus('Initialising Gambia national map...');
-
- try{
-
-  addMapLayers();
-  loadBoundaries();
-
- }catch(error){
-
-  console.error(error);
-  setStatus('APPLICATION ERROR: '+error.message);
- }
-});
-
-map.on('error',event=>{
- if(event.error)console.warn('Map service error:',event.error.message);
+map.on("load",()=>{
+ setTimeout(()=>{
+  resizeCanvas();
+  initialiseDrops();
+  runSimulation();
+ },1200);
 });
 
 </script>
 </body>
 </html>
+
